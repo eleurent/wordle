@@ -15,6 +15,9 @@ class AbstractAgent:
     def observe(self, word, matches):
         raise NotImplementedError
 
+    def reset(self):
+        raise NotImplementedError
+
 
 class InputAgent(AbstractAgent):
     def __init__(self, env: Env):
@@ -32,15 +35,25 @@ class InputAgent(AbstractAgent):
     def observe(self, word, matches):
         pass
 
+    def reset(self):
+        pass
+
+
 class ArianeAgent(AbstractAgent):
     def __init__(self, env: Env):
         self.env = env
         self.alphabet = set('qwertyuiopasdfghjklzxcvbnm')
+        self.greens = self.grays = self.yellows = {}
+        self.openings = []
+        self.candidate_words = []
+        self.reset()
+
+    def reset(self):
         self.greens = {}
         self.grays = set()
         self.yellows = {}
         self.openings = self.find_good_openings()
-        self.candidate_words = env.answers.copy()
+        self.candidate_words = self.env.answers.copy()
 
     def act(self):
         if self.openings:

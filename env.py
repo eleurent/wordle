@@ -37,6 +37,7 @@ class Env:
             terminal = True
         elif self.steps == self.NUM_TRIES:
             logger.info(f'YOU LOST. The answer was {self.answer}')
+            self.steps += 1
             terminal = True
         return matches, terminal
 
