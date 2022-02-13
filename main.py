@@ -9,7 +9,7 @@ import logging
 def main():
     env = Env()
     agent = ArianeAgent(env)
-    play(env, agent)
+    analyse(env, agent)
 
 
 def play(env, agent):

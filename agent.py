@@ -62,10 +62,10 @@ class ArianeAgent(AbstractAgent):
             return random.choice(self.candidate_words)
 
     def observe(self, word, matches):
-        if self.openings and len(self.found_letters) >= 4:
-            self.openings = []
         self.update_letters_lists(matches, word)
         self.update_candidate_words()
+        if len(self.found_letters) >= 4:
+            self.openings = []
         logger.info(f'{len(self.candidate_words)} words and {len(self.candidate_letters)} letters remaining.')
         if len(self.candidate_words) < 5:
             logger.info(self.candidate_words)
@@ -169,4 +169,3 @@ class ArianeAgent(AbstractAgent):
                 return word
         else:
             return None
-
