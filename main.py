@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import pandas as pd
+import numpy as np
 
 from agent import ArianeAgent, InputAgent
 from env import Env
@@ -32,6 +33,7 @@ def game(env, agent):
 def analyse(env, agent, num_games=1000):
     df = pd.DataFrame.from_records({"steps": [game(env, agent) for _ in range(num_games)]})
     print(df.describe())
+    print(f"95% deviation for the mean: {1.96*df.steps.std()/np.sqrt(df.steps.count()):.3f}")
     df.plot.hist(density=1, bins=env.NUM_TRIES+1, range=(0.5, env.NUM_TRIES+1.5)).set_title(agent.__class__.__name__)
     plt.show()
 
