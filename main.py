@@ -1,5 +1,3 @@
-# encoding: utf-8
-import collections
 from matplotlib import pyplot as plt
 import pandas as pd
 
@@ -11,7 +9,7 @@ import logging
 def main():
     env = Env()
     agent = ArianeAgent(env)
-    analyse(env, agent)
+    play(env, agent)
 
 
 def play(env, agent):

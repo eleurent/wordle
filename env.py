@@ -1,4 +1,3 @@
-# encoding: utf-8
 import random
 from enum import Enum
 import logging

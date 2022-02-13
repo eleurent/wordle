@@ -57,7 +57,7 @@ class ArianeAgent(AbstractAgent):
 
     def act(self):
         if self.openings:
-            return self.openings.pop()
+            return self.openings.pop(0)
         else:
             return random.choice(self.candidate_words)
 
@@ -128,46 +128,44 @@ class ArianeAgent(AbstractAgent):
         return sorted(ArianeAgent.letter_counts(answers).items(), key=itemgetter(1), reverse=True)[:count]
 
     @staticmethod
-    def good_openings(words, frequent_letters):
-        openings = ['runty', 'pechs', 'dolia']  # Hardcoded values, obtained from running the following once
-        if openings:
-            random.shuffle(openings)
-            return openings
+    def good_openings(words, frequent_letters, attempts=10):
+        # return ['runty', 'pechs', 'dolia']  # Hardcoded values, obtained from running the following once
         letters = frequent_letters
-        word1 = word2 = word3 = None
+        word1 = None
         while not word1:
-            word1, w1_letters = ArianeAgent.find_word_with_letter_list(words, letters)
-            logger.info(f'Found word1 {word1}, remaining {w1_letters}')
-            word2 = None
-            while not word2:
-                word2, w2_letters = ArianeAgent.find_word_with_letter_list(words, w1_letters)
-                logger.info(f'Found word2 {word2}, remaining {w2_letters}')
-                for _ in range(10):
-                    word3, _ = ArianeAgent.find_word_with_letter_list(words, w2_letters)
-                    if word3:
-                        break
+            word1, w1_letters = ArianeAgent.samples_word_from_letters(words, letters)
+            if word1:
+                logger.info(f'Found word 1 {word1}, remaining {w1_letters}.')
+                for _ in range(attempts):
+                    word2, w2_letters = ArianeAgent.samples_word_from_letters(words, w1_letters)
+                    if word2:
+                        logger.info(f'Found word 2 {word2}, remaining {w2_letters}.')
+                        word3 = ArianeAgent.find_word_with_letters(words, w2_letters)
+                        if word3:
+                            logger.info(f'Found word 3 {word3}.')
+                            return [word1, word2, word3]
+                        else:
+                            logger.info(f'No word 3 available with remaining letters.')
                 else:
-                    word2 = None
-        return [word1, word2, word3]
+                    word1 = None
 
     @staticmethod
-    def find_word_with_letter_list(words, letters):
-        word = remaining = None
-        while not word:
-            chosen, remaining = ArianeAgent.choose_letters_in_list(letters)
-            logger.info(f'Chose letters {chosen}, remaining {remaining}')
-            word = ArianeAgent.find_word_with_letters(words, chosen)
+    def samples_word_from_letters(words, letters):
+        chosen, remaining = ArianeAgent.samples_letters(letters)
+        logger.info(f'Picked letters {chosen}, remaining {remaining}.')
+        word = ArianeAgent.find_word_with_letters(words, chosen)
         return word, remaining
 
     @staticmethod
-    def choose_letters_in_list(letters, count=5):
+    def samples_letters(letters, count=5):
         chosen = random.sample(letters, count)
-        return chosen, [letter for letter in letters if letter not in chosen]
+        return chosen, set(letters).difference(chosen)
 
     @staticmethod
     def find_word_with_letters(words, letters):
+        letters = set(letters)
         for word in words:
-            if set(word) == set(letters):
+            if set(word) == letters:
                 return word
         else:
             return None
