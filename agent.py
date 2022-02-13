@@ -114,7 +114,7 @@ class ArianeAgent(AbstractAgent):
         return self.alphabet.difference(self.grays)
 
     def find_good_openings(self):
-        frequent_letters = self.most_frequent_letters(self.env.answers)
+        frequent_letters = self.most_frequent_letters(self.env.answers, count=10)
         logger.info(f"Most frequent letters: {frequent_letters}")
         frequent_letters = [letter for letter, count in frequent_letters]
         return self.good_openings(self.env.allowed, frequent_letters)
@@ -124,30 +124,20 @@ class ArianeAgent(AbstractAgent):
         return Counter([l for w in answers for l in w])
 
     @staticmethod
-    def most_frequent_letters(answers, count=15):
+    def most_frequent_letters(answers, count):
         return sorted(ArianeAgent.letter_counts(answers).items(), key=itemgetter(1), reverse=True)[:count]
 
     @staticmethod
-    def good_openings(words, frequent_letters, attempts=10):
-        # return ['runty', 'pechs', 'dolia']  # Hardcoded values, obtained from running the following once
+    def good_openings(words, frequent_letters):
         letters = frequent_letters
-        word1 = None
-        while not word1:
+        while True:
             word1, w1_letters = ArianeAgent.samples_word_from_letters(words, letters)
             if word1:
                 logger.info(f'Found word 1 {word1}, remaining {w1_letters}.')
-                for _ in range(attempts):
-                    word2, w2_letters = ArianeAgent.samples_word_from_letters(words, w1_letters)
-                    if word2:
-                        logger.info(f'Found word 2 {word2}, remaining {w2_letters}.')
-                        word3 = ArianeAgent.find_word_with_letters(words, w2_letters)
-                        if word3:
-                            logger.info(f'Found word 3 {word3}.')
-                            return [word1, word2, word3]
-                        else:
-                            logger.info(f'No word 3 available with remaining letters.')
-                else:
-                    word1 = None
+                word2 = ArianeAgent.find_word_with_letters(words, w1_letters)
+                if word2:
+                    logger.info(f'Found word 2 {word2}.')
+                    return [word1, word2]
 
     @staticmethod
     def samples_word_from_letters(words, letters):
